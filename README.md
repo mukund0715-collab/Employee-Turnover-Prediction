@@ -85,7 +85,7 @@ To get a local copy up and running, follow these simple steps.
     ```
 2.  **Navigate to the project directory**
     ```sh
-    cd your_project_repository
+    cd Project_Final
     ```
 3.  **Install Python dependencies**
     ```sh
