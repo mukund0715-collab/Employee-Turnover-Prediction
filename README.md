@@ -91,12 +91,12 @@ To get a local copy up and running, follow these simple steps.
     ```sh
     pip install -r requirements.txt
     ```
-4.  **Run Django Migrations**
+4.  **Run Python code for Employee efficiency, Turnover and Turnover cost**
     ```sh
-    python manage.py migrate
+    python ER5.py
     ```
-5.  **Run the Development Server**
+5.  **Run the Visulization code**
     ```sh
-    python manage.py runserver
+    python Visualization.py
     ```
-    Open your browser and go to `http://127.0.0.1:8000/`
+    Check the new CSV files and Visualization folder Created in your Project Folder 
