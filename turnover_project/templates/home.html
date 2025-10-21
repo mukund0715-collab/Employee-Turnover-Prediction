@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}Home - HR Turnover Analysis{% endblock %}
+
+{% block content %}
+    <h1>Welcome to the HR Turnover Analysis Platform</h1>
+    <p>This tool utilizes a machine learning pipeline to predict employee turnover, estimate the financial cost of losing key employees, and generate a retention priority list.</p>
+    
+    <h2>Project Information</h2>
+    <ul>
+        <li>**Efficiency Calculation:** Employee efficiency is scored from 0-100 based on a weighted Z-score combination of `last_evaluation`, `average_montly_hours`, `number_project`, `time_spend_company`, and `Work_accident`.</li>
+        <li>**Turnover Prediction:** A Logistic Regression model predicts the probability of an employee leaving (`Probability_Turnover`). The model can be updated with new data using a warm-start approach.</li>
+        <li>**Cost and Priority:** The `Estimated_Turnover_Cost` is calculated based on salary and a complexity multiplier (using tenure, projects, and efficiency Z-scores). The final `Retention_Priority_Score` is the product of cost and turnover probability.</li>
+    </ul>
+
+    {% if not user.is_authenticated %}
+        <div class="alert">
+            Please <a href="{% url 'login' %}">Log In</a> or <a href="{% url 'register' %}">Register</a> to upload your employee data and begin the analysis.
+        </div>
+    {% else %}
+        <p>Go to your <a href="{% url 'profile' %}">Profile</a> to upload a file and view your analysis history.</p>
+    {% endif %}
+
+{% endblock %}

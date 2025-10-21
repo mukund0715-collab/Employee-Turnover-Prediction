@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}Profile and History{% endblock %}
+
+{% block content %}
+    <h1>Welcome, {{ user.username }}</h1>
+
+    <h2>1. Upload Data File (.csv or .xlsx)</h2>
+    <form method="post" action="{% url 'upload_file' %}" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="data_file">Select Employee Data File:</label>
+            <input type="file" id="data_file" name="data_file" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" required>
+        </div>
+        <button type="submit" class="btn">Start Analysis</button>
+    </form>
+
+    <hr>
+
+    <h2>2. Analysis History</h2>
+    {% if results %}
+        <style>
+            /* Custom CSS for better table spacing and column widths */
+            .analysis-table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+            .analysis-table th, .analysis-table td {
+                border: 1px solid #ddd;
+                padding: 10px; /* Increased padding */
+                text-align: left;
+            }
+            .analysis-table th:nth-child(1) { width: 30%; } /* Uploaded File */
+            .analysis-table th:nth-child(2) { width: 20%; } /* Analysis Date */
+            .analysis-table th:nth-child(3), .analysis-table th:nth-child(4) { width: 25%; } /* Download Columns */
+        </style>
+
+        <table class="analysis-table">
+            <thead>
+                <tr>
+                    <th>Uploaded File</th>
+                    <th>Analysis Date</th>
+                    <th>View / Download Leavers Report</th>
+                    <th>View / Download Full List</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for result in results %}
+                <tr>
+                    <td>{{ result.upload_filename }}</td>
+                    <td>{{ result.analysis_date|date:"Y-m-d H:i" }}</td>
+                    <td>
+                        <a href="{% url 'download_file' result.id 'leavers' 'view' %}" class="btn">View/Open</a>
+                        <a href="{% url 'download_file' result.id 'leavers' 'download' %}" class="btn" style="background-color: #6c757d;">Download</a>
+                    </td>
+                    <td>
+                        <a href="{% url 'download_file' result.id 'full' 'view' %}" class="btn">View/Open</a>
+                        <a href="{% url 'download_file' result.id 'full' 'download' %}" class="btn" style="background-color: #6c757d;">Download</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No analysis history found. Upload a file above to start!</p>
+    {% endif %}
+
+{% endblock %}

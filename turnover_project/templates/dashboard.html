@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}Analysis Dashboard{% endblock %}
+
+{% block content %}
+    <a href="{% url 'profile' %}" class="btn" style="background-color: #555;">&larr; Back to Profile</a>
+    
+    <h1>Analysis Dashboard for {{ analysis_result.upload_filename }}</h1>
+    <p>Run on: {{ analysis_result.analysis_date|date:"Y-m-d H:i" }}</p>
+
+    <hr>
+
+    <h2>Key Summary Metrics</h2>
+    <div style="display: flex; justify-content: space-around; text-align: center; margin-bottom: 30px;">
+        <div style="border: 1px solid #ccc; padding: 20px; border-radius: 8px;">
+            <h3>Total Employees</h3>
+            <p style="font-size: 2em; color: #007bff;">{{ metrics.total_employees }}</p>
+        </div>
+        <div style="border: 1px solid #ccc; padding: 20px; border-radius: 8px;">
+            <h3>Predicted Turnover Risk</h3>
+            <p style="font-size: 2em; color: #dc3545;">{{ metrics.turnover_risk_percent }}%</p>
+        </div>
+        <div style="border: 1px solid #ccc; padding: 20px; border-radius: 8px;">
+            <h3>High Priority Retention Focus</h3>
+            <p style="font-size: 2em; color: #28a745;">{{ metrics.high_priority_retain_percent }}%</p>
+        </div>
+    </div>
+    
+    <hr>
+
+    <h2>Visualizations</h2>
+    
+    {% for key, path in viz_paths.items %}
+    <div style="margin-bottom: 40px; border: 1px solid #eee; padding: 10px;">
+        <h3>{{ key|replace:"_" : " "|title }}</h3>
+        
+        <img src="{% url 'serve_image' path %}" alt="{{ key }}" style="width: 100%; max-width: 800px; height: auto;">
+        
+        <p>Image path on server: <code>{{ path }}</code></p>
+    </div>
+    {% endfor %}
+
+{% endblock %}
