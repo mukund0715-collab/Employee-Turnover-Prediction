@@ -1,47 +1,172 @@
 {% extends "base.html" %}
-
-{% block title %}Profile and History{% endblock %}
+{% block title %}Profile & History - HR Turnover Analysis{% endblock %}
 
 {% block content %}
+<style>
+  /* Container & layout */
+  .profile-container {
+      animation: fadeInUp 1s ease forwards;
+      color: #f1f5f9;
+  }
+
+  @keyframes fadeInUp {
+      0% { opacity: 0; transform: translateY(20px); }
+      100% { opacity: 1; transform: translateY(0); }
+  }
+
+  h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #38bdf8;
+      margin-bottom: 20px;
+      text-align: center;
+  }
+
+  h2 {
+      color: #e2e8f0;
+      font-size: 1.4rem;
+      margin-top: 30px;
+      margin-bottom: 10px;
+  }
+
+  /* Upload form styling */
+  form {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(8px);
+      border-radius: 12px;
+      padding: 25px;
+      margin-top: 10px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  }
+
+  label {
+      color: #f8fafc;
+      font-weight: 600;
+      margin-bottom: 5px;
+      display: block;
+  }
+
+  input[type="file"] {
+      width: 100%;
+      padding: 10px;
+      margin-top: 8px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid #475569;
+      color: #f8fafc;
+  }
+
+  input[type="file"]::-webkit-file-upload-button {
+      background: #38bdf8;
+      color: #fff;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+  }
+
+  input[type="file"]::-webkit-file-upload-button:hover {
+      background: #0ea5e9;
+  }
+
+  .btn {
+      background: linear-gradient(90deg, #38bdf8, #0ea5e9);
+      color: #fff;
+      padding: 10px 18px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      text-decoration: none;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(56, 189, 248, 0.4);
+  }
+
+  hr {
+      margin: 40px 0;
+      border: 0;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  /* Table Styling */
+  .analysis-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  }
+
+  .analysis-table th, .analysis-table td {
+      padding: 14px;
+      text-align: left;
+  }
+
+  .analysis-table th {
+      background: rgba(56, 189, 248, 0.2);
+      color: #f8fafc;
+      font-weight: 600;
+  }
+
+  .analysis-table tr:nth-child(even) {
+      background: rgba(255, 255, 255, 0.05);
+  }
+
+  .analysis-table tr:hover {
+      background: rgba(56, 189, 248, 0.15);
+      transition: background 0.3s ease;
+  }
+
+  .btn.secondary {
+      background: rgba(100, 116, 139, 0.8);
+  }
+
+  .btn.secondary:hover {
+      background: rgba(100, 116, 139, 1);
+  }
+
+  .no-history {
+      color: #94a3b8;
+      text-align: center;
+      margin-top: 20px;
+      font-style: italic;
+  }
+</style>
+
+<div class="profile-container">
     <h1>Welcome, {{ user.username }}</h1>
 
+    <!-- Upload Section -->
     <h2>1. Upload Data File (.csv or .xlsx)</h2>
     <form method="post" action="{% url 'upload_file' %}" enctype="multipart/form-data">
         {% csrf_token %}
         <div class="form-group">
             <label for="data_file">Select Employee Data File:</label>
-            <input type="file" id="data_file" name="data_file" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" required>
+            <input type="file" id="data_file" name="data_file"
+                accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
+                required>
         </div>
         <button type="submit" class="btn">Start Analysis</button>
     </form>
 
     <hr>
 
+    <!-- History Section -->
     <h2>2. Analysis History</h2>
     {% if results %}
-        <style>
-            /* Custom CSS for better table spacing and column widths */
-            .analysis-table {
-                width: 100%;
-                border-collapse: collapse;
-            }
-            .analysis-table th, .analysis-table td {
-                border: 1px solid #ddd;
-                padding: 10px; /* Increased padding */
-                text-align: left;
-            }
-            .analysis-table th:nth-child(1) { width: 30%; } /* Uploaded File */
-            .analysis-table th:nth-child(2) { width: 20%; } /* Analysis Date */
-            .analysis-table th:nth-child(3), .analysis-table th:nth-child(4) { width: 25%; } /* Download Columns */
-        </style>
-
         <table class="analysis-table">
             <thead>
                 <tr>
                     <th>Uploaded File</th>
                     <th>Analysis Date</th>
-                    <th>View / Download Leavers Report</th>
-                    <th>View / Download Full List</th>
+                    <th>Leavers Report</th>
+                    <th>Full Report</th>
                 </tr>
             </thead>
             <tbody>
@@ -50,19 +175,19 @@
                     <td>{{ result.upload_filename }}</td>
                     <td>{{ result.analysis_date|date:"Y-m-d H:i" }}</td>
                     <td>
-                        <a href="{% url 'download_file' result.id 'leavers' 'view' %}" class="btn">View/Open</a>
-                        <a href="{% url 'download_file' result.id 'leavers' 'download' %}" class="btn" style="background-color: #6c757d;">Download</a>
+                        <a href="{% url 'download_file' result.id 'leavers' 'view' %}" class="btn">View</a>
+                        <a href="{% url 'download_file' result.id 'leavers' 'download' %}" class="btn secondary">Download</a>
                     </td>
                     <td>
-                        <a href="{% url 'download_file' result.id 'full' 'view' %}" class="btn">View/Open</a>
-                        <a href="{% url 'download_file' result.id 'full' 'download' %}" class="btn" style="background-color: #6c757d;">Download</a>
+                        <a href="{% url 'download_file' result.id 'full' 'view' %}" class="btn">View</a>
+                        <a href="{% url 'download_file' result.id 'full' 'download' %}" class="btn secondary">Download</a>
                     </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     {% else %}
-        <p>No analysis history found. Upload a file above to start!</p>
+        <p class="no-history">No analysis history found. Upload a file above to start!</p>
     {% endif %}
-
+</div>
 {% endblock %}
