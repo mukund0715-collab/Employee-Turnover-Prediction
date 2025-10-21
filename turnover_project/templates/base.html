@@ -4,21 +4,168 @@
     <meta charset="UTF-8">
     <title>{% block title %}HR Turnover Analysis{% endblock %}</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f7f6; }
-        .navbar { background-color: #007bff; padding: 10px 20px; color: white; display: flex; justify-content: space-between; align-items: center; }
-        .navbar a { color: white; text-decoration: none; margin-left: 20px; }
-        .container { max-width: 1200px; margin: 20px auto; padding: 20px; background-color: white; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); }
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
-        .form-group input[type="text"], .form-group input[type="password"], .form-group input[type="file"] { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-        .btn { background-color: #28a745; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; text-decoration: none; display: inline-block; }
-        .btn:hover { background-color: #218838; }
-        .alert { padding: 15px; background-color: #ffc107; color: #333; margin-bottom: 15px; border-radius: 4px; }
+        /* --- General Reset --- */
+        * {
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            color: #f1f5f9;
+            background: linear-gradient(-45deg, #0f172a, #1e293b, #334155, #0f172a);
+            background-size: 400% 400%;
+            animation: gradientShift 12s ease infinite;
+            min-height: 100vh;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* --- Navbar --- */
+        .navbar {
+            background: rgba(15, 23, 42, 0.9);
+            backdrop-filter: blur(10px);
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar a {
+            color: #e2e8f0;
+            text-decoration: none;
+            margin-left: 20px;
+            font-weight: 500;
+            position: relative;
+        }
+
+        .navbar a:hover {
+            color: #38bdf8;
+        }
+
+        .navbar a::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: #38bdf8;
+            transition: width 0.3s ease;
+        }
+
+        .navbar a:hover::after {
+            width: 100%;
+        }
+
+        .navbar span {
+            color: #93c5fd;
+            font-weight: 600;
+            margin-right: 10px;
+        }
+
+        /* --- Page Container --- */
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 4px 25px rgba(0, 0, 0, 0.3);
+            animation: fadeInUp 1s ease forwards;
+        }
+
+        @keyframes fadeInUp {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- Buttons --- */
+        .btn {
+            background-color: #38bdf8;
+            color: #fff;
+            padding: 10px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: 500;
+            display: inline-block;
+        }
+
+        .btn:hover {
+            background-color: #0ea5e9;
+            transform: translateY(-2px);
+        }
+
+        /* --- Form Inputs --- */
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: bold;
+            color: #e2e8f0;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="password"],
+        .form-group input[type="file"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #64748b;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.15);
+            color: #f8fafc;
+        }
+
+        .form-group input::placeholder {
+            color: #cbd5e1;
+        }
+
+        /* --- Alerts --- */
+        .alert {
+            padding: 15px;
+            background-color: rgba(251, 191, 36, 0.15);
+            border: 1px solid #fbbf24;
+            color: #fde68a;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* --- Links --- */
+        a {
+            color: #38bdf8;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
     <div class="navbar">
-        <a href="{% url 'home' %}">📊 HR Turnover Analyzer</a>
+        <a href="{% url 'home' %}" style="font-size: 1.2rem; font-weight: 600;">📊 HR Turnover Analyzer</a>
         <div>
             {% if user.is_authenticated %}
                 <span>Hello, {{ user.username }}!</span>
@@ -30,6 +177,7 @@
             {% endif %}
         </div>
     </div>
+
     <div class="container">
         {% block content %}
         {% endblock %}
