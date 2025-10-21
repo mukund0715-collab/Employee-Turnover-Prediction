@@ -1,5 +1,5 @@
 # Employee-Turnover-Prediction
-This project uses AI to combat costly employee turnover. By analyzing HR data, it predicts at-risk employees, assesses their efficiency, and estimates the financial impact of their departure. This enables HR teams to shift from reactive measures to proactive, data-driven retention strategies, fostering a more stable workforce.
+This project uses ML to combat costly employee turnover. By analyzing HR data, it predicts at-risk employees, assesses their efficiency, and estimates the financial impact of their departure. This enables HR teams to shift from reactive measures to proactive, data-driven retention strategies, fostering a more stable workforce.
 
 # Predictive Analytics for Employee Retention and Turnover Forecasting
 
@@ -85,18 +85,19 @@ To get a local copy up and running, follow these simple steps.
     ```
 2.  **Navigate to the project directory**
     ```sh
-    cd Project_Final
+    cd turnover_project
     ```
-3.  **Install Python dependencies**
+3. **Install Required Libraries**
     ```sh
-    pip install -r requirements.txt
+     pip install "Library_name"
     ```
-4.  **Run Python code for Employee efficiency, Turnover and Turnover cost**
+5.  **Apply Migrations**
     ```sh
-    python ER5.py
+    python manage.py makemigrations
+    python manage.py migrate
     ```
-5.  **Run the Visulization code**
+6.  **Run the Server**
     ```sh
-    python Visualization.py
+    python manage.py runserver
     ```
     Check the new CSV files and Visualization folder Created in your Project Folder 
