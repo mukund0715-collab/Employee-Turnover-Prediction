@@ -3,10 +3,112 @@
 {% block title %}Register{% endblock %}
 
 {% block content %}
-    <h2>Register</h2>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="btn">Register</button>
-    </form>
+<style>
+  /* Centered card layout */
+  .register-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 80vh;
+      animation: fadeIn 1s ease-in-out forwards;
+  }
+
+  @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+  }
+
+  .register-card {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(10px);
+      border-radius: 16px;
+      padding: 40px 50px;
+      width: 420px;
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+      text-align: center;
+      color: #f8fafc;
+  }
+
+  .register-card h2 {
+      font-size: 2rem;
+      margin-bottom: 25px;
+      color: #38bdf8;
+      font-weight: 700;
+  }
+
+  form {
+      text-align: left;
+  }
+
+  label {
+      display: block;
+      margin-top: 15px;
+      font-weight: 600;
+      color: #e2e8f0;
+  }
+
+  input[type="text"],
+  input[type="email"],
+  input[type="password"] {
+      width: 100%;
+      padding: 10px 14px;
+      margin-top: 8px;
+      border-radius: 8px;
+      border: 1px solid #475569;
+      background: rgba(255, 255, 255, 0.1);
+      color: #f8fafc;
+      transition: border 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  input:focus {
+      border-color: #38bdf8;
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+      outline: none;
+  }
+
+  .btn {
+      width: 100%;
+      background: linear-gradient(90deg, #38bdf8, #0ea5e9);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 12px;
+      font-weight: 600;
+      margin-top: 25px;
+      cursor: pointer;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(56, 189, 248, 0.4);
+  }
+
+  .login-link {
+      margin-top: 20px;
+      color: #94a3b8;
+  }
+
+  .login-link a {
+      color: #38bdf8;
+      text-decoration: none;
+      font-weight: 600;
+  }
+
+  .login-link a:hover {
+      text-decoration: underline;
+  }
+</style>
+
+<div class="register-container">
+  <div class="register-card">
+      <h2>Create Account</h2>
+      <form method="post">
+          {% csrf_token %}
+          {{ form.as_p }}
+          <button type="submit" class="btn">Register</button>
+      </form>
+      <p class="login-link">Already have an account? <a href="{% url 'login' %}">Log in here</a>.</p>
+  </div>
+</div>
 {% endblock %}
