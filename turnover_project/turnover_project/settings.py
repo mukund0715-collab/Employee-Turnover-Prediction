@@ -124,4 +124,13 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_REDIRECT_URL = 'profile'
+
 LOGOUT_REDIRECT_URL = 'home'
+
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+
+# The URL that handles the media served from MEDIA_ROOT, used for managing stored files.
+MEDIA_URL = ''
+
+# The absolute filesystem path to the directory that will hold user-uploaded files.
+MEDIA_ROOT = BASE_DIR / ''
