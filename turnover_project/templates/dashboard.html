@@ -1,43 +1,121 @@
 {% extends "base.html" %}
-
-{% block title %}Analysis Dashboard{% endblock %}
+{% block title %}Dashboard for {{ result.upload_filename }}{% endblock %}
 
 {% block content %}
-    <a href="{% url 'profile' %}" class="btn" style="background-color: #555;">&larr; Back to Profile</a>
+<style>
+  .dashboard-container {
+    animation: fadeInUp 1s ease forwards;
+    color: #f1f5f9;
+  }
+
+  /* This is the "File Name" header, styled like your image */
+  .dashboard-header {
+    background: rgba(56, 189, 248, 0.1);
+    border: 1px solid #38bdf8;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 25px;
+  }
+
+  .dashboard-header h1 {
+    color: #f1f5f9;
+    font-size: 1.8rem;
+    margin: 0;
+  }
+  .dashboard-header p {
+    color: #cbd5e1;
+    font-size: 1.1rem;
+    margin: 5px 0 0 0;
+  }
+  
+  .dashboard-header a {
+    color: #38bdf8;
+    text-decoration: none;
+    font-weight: 500;
+  }
+  .dashboard-header a:hover {
+    text-decoration: underline;
+  }
+
+  hr {
+    border: 0;
+    height: 1px;
+    background: #334155;
+    margin: 30px 0;
+  }
+
+  /* --- Visualization Grid Styles --- */
+  /* This grid will automatically fit as many charts as possible
+     and stack them on small screens. */
+  .dashboard-grid {
+      display: grid;
+      /* Each chart will be at least 350px wide, or 1 full column */
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 20px; /* Space between chart cards */
+      margin-top: 10px;
+  }
+
+  /* This is the card for each image (the green boxes in your wireframe) */
+  .dashboard-item {
+      background: rgba(255, 255, 255, 0.05); /* Dark glass effect */
+      border: 1px solid #475569;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+      transition: transform 0.3s ease;
+      align-self: start; 
+  }
+
+  .dashboard-item:hover {
+      transform: translateY(-4px);
+  }
+
+  .dashboard-item img {
+      width: 100%;
+      height: auto; /* Maintain aspect ratio */
+      border-radius: 8px;
+      border: 1px solid #334155;
+  }
+  
+  .dashboard-item h5 {
+      color: #e2e8f0;
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-top: 0;
+      margin-bottom: 15px;
+      text-align: center;
+  }
+  
+  .no-images {
+    color: #94a3b8;
+    text-align: center;
+    margin-top: 20px;
+    font-style: italic;
+    font-size: 1.1rem;
+  }
+
+</style>
+
+<div class="dashboard-container">
     
-    <h1>Analysis Dashboard for {{ analysis_result.upload_filename }}</h1>
-    <p>Run on: {{ analysis_result.analysis_date|date:"Y-m-d H:i" }}</p>
-
-    <hr>
-
-    <h2>Key Summary Metrics</h2>
-    <div style="display: flex; justify-content: space-around; text-align: center; margin-bottom: 30px;">
-        <div style="border: 1px solid #ccc; padding: 20px; border-radius: 8px;">
-            <h3>Total Employees</h3>
-            <p style="font-size: 2em; color: #007bff;">{{ metrics.total_employees }}</p>
-        </div>
-        <div style="border: 1px solid #ccc; padding: 20px; border-radius: 8px;">
-            <h3>Predicted Turnover Risk</h3>
-            <p style="font-size: 2em; color: #dc3545;">{{ metrics.turnover_risk_percent }}%</p>
-        </div>
-        <div style="border: 1px solid #ccc; padding: 20px; border-radius: 8px;">
-            <h3>High Priority Retention Focus</h3>
-            <p style="font-size: 2em; color: #28a745;">{{ metrics.high_priority_retain_percent }}%</p>
-        </div>
+    <div class="dashboard-header">
+        <h1>{{ result.upload_filename }}</h1>
+        <p>Analysis Date: {{ result.analysis_date|date:"Y-m-d H:i" }}</p>
+        <p><a href="{% url 'profile' %}">← Back to Profile & History</a></p>
     </div>
-    
-    <hr>
 
-    <h2>Visualizations</h2>
-    
-    {% for key, path in viz_paths.items %}
-    <div style="margin-bottom: 40px; border: 1px solid #eee; padding: 10px;">
-        <h3>{{ key|replace:"_" : " "|title }}</h3>
-        
-        <img src="{% url 'serve_image' path %}" alt="{{ key }}" style="width: 100%; max-width: 800px; height: auto;">
-        
-        <p>Image path on server: <code>{{ path }}</code></p>
-    </div>
-    {% endfor %}
+    {% if visualizations %}
+      <div class="dashboard-grid">
+        {% for viz in visualizations %}
+          <div class="dashboard-item">
+            <h5>{{ viz.alt_text }}</h5>
+            <img src="{{ viz.image.url }}" alt="{{ viz.alt_text }}">
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="no-images">No visualizations were generated for this report.</p>
+    {% endif %}
 
+</div>
 {% endblock %}
