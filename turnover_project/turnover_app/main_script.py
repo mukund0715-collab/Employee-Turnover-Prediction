@@ -15,6 +15,7 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_sc
 from .efficiency_module import calculate_efficiency
 from .turnover_model import load_or_train_turnover_model, PREPROCESSOR_FILENAMES, MODEL_FILENAME
 from .cost_module import calculate_turnover_cost_and_priority
+from .visualization import visualize_data
 
 # --- CONFIGURATION / GLOBAL VARIABLES ---
 FEATURES = ['satisfaction_level', 'last_evaluation', 'number_project',
@@ -126,5 +127,8 @@ def run_turnover_analysis(file_path, base_name):
     # Return the paths to the generated reports for the Django view to handle zipping/download
     return REPORT_LEAVERS_FILE, REPORT_FULL_LIST_FILE
 
-# NOTE: The input() function has been removed. 
-# The function will run when called by the Django view.
+def run_visualization(file_path,leavers_report_path,full_list_report_path):
+    vis = []
+    vis = visualize_data(file_path,leavers_report_path,full_list_report_path)
+    return vis
+    

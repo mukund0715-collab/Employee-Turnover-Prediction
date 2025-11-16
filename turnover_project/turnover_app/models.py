@@ -7,11 +7,8 @@ class AnalysisResult(models.Model):
     
     # Track the original upload name
     upload_filename = models.CharField(max_length=255)
-    
-    # Store the paths to the generated reports
     leavers_report_path = models.CharField(max_length=500)
     full_list_report_path = models.CharField(max_length=500)
-    
     # Automatically track the date of the analysis
     analysis_date = models.DateTimeField(auto_now_add=True)
 
@@ -21,3 +18,19 @@ class AnalysisResult(models.Model):
     class Meta:
         # Order by newest first
         ordering = ['-analysis_date']
+        
+class ResultImage(models.Model):
+    # This ForeignKey is the crucial link.
+    # It connects each image to ONE AnalysisResult.
+    result = models.ForeignKey(
+        AnalysisResult, 
+        on_delete=models.CASCADE, 
+        related_name="visualizations"  # <-- This is how you get the list!
+    )
+    
+    # This handles the file upload and stores the path
+    image = models.ImageField(upload_to='analysis_images/')
+    alt_text = models.CharField(max_length=250, blank=True)
+
+    def __str__(self):
+        return f"Image for {self.result.upload_filename}"
