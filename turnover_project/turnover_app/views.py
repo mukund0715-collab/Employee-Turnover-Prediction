@@ -7,11 +7,12 @@ from django.core.files.storage import FileSystemStorage
 from django.http import HttpResponse, FileResponse, Http404
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.core.files.base import ContentFile
 
 # Import your core analysis script
 # NOTE: The import path needs to be correct relative to your app structure
-from .main_script import run_turnover_analysis 
-from .models import AnalysisResult
+from .main_script import run_turnover_analysis, run_visualization
+from .models import AnalysisResult, ResultImage
 
 # ====================================================================
 # A. Authentication Views (Using Django's built-in forms)
@@ -60,8 +61,13 @@ def home(request):
 @login_required
 def profile(request):
     """User profile page showing analysis history and upload form."""
-    # Retrieve all analysis results for the currently logged-in user
-    results = AnalysisResult.objects.filter(user=request.user)
+    
+    # Get results AND pre-fetch all related images in one go
+    results = AnalysisResult.objects.filter(
+        user=request.user
+    ).prefetch_related(
+        'visualizations'  # The name of your related model
+    ).order_by('-analysis_date') # Good to order them, newest first
     
     context = {
         'results': results,
@@ -90,21 +96,39 @@ def upload_file(request):
                 with open(temp_file_path, 'wb+') as destination:
                     for chunk in uploaded_file.chunks():
                         destination.write(chunk)
-
+            
             # 2. Run the analysis (from main_script.py)
             base_name = os.path.splitext(uploaded_file.name)[0]
             leavers_report_path, full_list_report_path = run_turnover_analysis(
                 temp_file_path, base_name
             )
-
+            
             # 3. Save the result paths to the database
-            AnalysisResult.objects.create(
+            Analysis_object = AnalysisResult.objects.create(
                 user=request.user,
                 upload_filename=uploaded_file.name,
                 leavers_report_path=leavers_report_path,
                 full_list_report_path=full_list_report_path,
             )
+            
+            temp_path_list = run_visualization(temp_file_path, full_list_report_path, leavers_report_path)
 
+# 3. Loop over the paths and create the MANY ResultImage objects
+            for temp_path in temp_path_list:
+                
+                # Open the image file from its temporary path
+                with open(temp_path, 'rb') as f:
+                    print(temp_path)
+                    # We need to wrap the file content for Django
+                    # We also get the filename (e.g., 'viz_1.png') from the path
+                    image_file = temp_path
+
+                    # Create the ResultImage, linking it to the 'analysis_result'
+                    ResultImage.objects.create(
+                        result=Analysis_object,  # <-- The link!
+                        image=image_file,
+                        alt_text="Visualization image"
+                    )
         except Exception as e:
             # Handle potential errors (e.g., malformed data, script crash)
             print(f"Analysis failed: {e}")
@@ -126,14 +150,16 @@ def upload_file(request):
 @login_required
 def download_file(request, result_id, file_type, mode):
     """
-    Serves the requested report file.
-    
-    Args:
-        mode (str): 'view' to open in browser, 'download' to force download.
+    Serves the requested report file OR redirects to the dashboard.
     """
-    
     result = get_object_or_404(AnalysisResult, id=result_id, user=request.user)
-    
+
+    # --- THIS IS THE FIX ---
+    # If the user clicks "View", redirect to the new dashboard URL
+    if mode == 'view':
+        return redirect('dashboard', result_id=result.id)
+    # --- END OF FIX ---
+
     # 1. Determine which file path and name to use
     if file_type == 'leavers':
         file_path = result.leavers_report_path
@@ -148,31 +174,26 @@ def download_file(request, result_id, file_type, mode):
     if not os.path.exists(file_path):
         raise Http404("Report file not found.")
 
-    # 3. Configure the HTTP Response based on the mode
+    # 3. Configure the HTTP Response (only 'download' mode will reach here)
     response = FileResponse(open(file_path, 'rb'), content_type='text/csv')
-
-    if mode == 'download':
-        # Force the browser to download the file
-        response['Content-Type'] = 'application/octet-stream'
-        response['Content-Disposition'] = f'attachment; filename="{file_name}"'
-    elif mode == 'view':
-        # Suggest the browser display the file content (especially good for CSVs)
-        # Note: This uses 'inline', but the browser ultimately decides (usually works for CSV)
-        response['Content-Type'] = 'application/octet-stream'
-        response['Content-Disposition'] = f'inline; filename="{file_name}"'
+    response['Content-Type'] = 'application/octet-stream'
+    response['Content-Disposition'] = f'attachment; filename="{file_name}"'
         
     return response
 
-# Update the turnover_app/urls.py to map the new view functions:
-# from django.urls import path
-# from . import views
-# 
-# urlpatterns = [
-#     path('', views.home, name='home'),
-#     path('register/', views.register_view, name='register'), # NEW
-#     path('login/', views.login_view, name='login'),         # NEW
-#     path('logout/', views.logout_view, name='logout'),       # NEW
-#     path('profile/', views.profile, name='profile'),
-#     path('upload/', views.upload_file, name='upload_file'),
-#     path('download/<int:result_id>/<str:file_type>/', views.download_file, name='download_file'),
-# ]
+@login_required
+def dashboard_view(request, result_id):
+    """
+    Displays the visualization dashboard for a SINGLE analysis result.
+    """
+    # 1. Get the specific result for this user
+    result = get_object_or_404(AnalysisResult, id=result_id, user=request.user)
+    
+    # 2. Get all visualization images linked to this result
+    visualizations = result.visualizations.all()
+    
+    context = {
+        'result': result,
+        'visualizations': visualizations,
+    }
+    return render(request, 'dashboard.html', context)
